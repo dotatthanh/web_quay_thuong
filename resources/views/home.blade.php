@@ -35,7 +35,7 @@
     </div>
 
     <form action="" class="text-center mt-[70px] text-[32px]">
-        <select name="type" id="type" onchange="clearResult()"
+        <select name="type" id="type" onchange="changeType()"
             class="border border-gray-300 bg-transparent rounded p-2 w-[450px] px-3 text-center h-[64px]">
             <option value="GIẢI KHUYẾN KHÍCH">GIẢI KHUYẾN KHÍCH</option>
             <option value="GIẢI BA">GIẢI BA</option>
@@ -44,19 +44,20 @@
             <option value="GIẢI ĐẶC BIỆT">GIẢI ĐẶC BIỆT</option>
         </select>
         <button type="button" class="bg-[#e47093] text-white py-2 px-4 rounded font-medium ml-[15px]"
-            onclick="startRandom()">QUAY
+            onclick="start()">QUAY
             THƯỞNG</button>
+
+        <p class="text-center text-[48px] font-bold text-[#ff2d20] mt-[15px]" style="font-family: none;">01 XE MÁY ĐIỆN
+            KLAZA S2</p>
     </form>
 
-    <div class="mt-[100px] px-[20px] hidden" id="winners-list">
+    <div class="px-[20px] hidden transition-all duration-500" id="winners-list">
         <p class="text-center text-[48px] font-medium">DANH SÁCH NGƯỜI MAY MẮN TRÚNG GIẢI</p>
 
         <div class="flex flex-wrap gap-[15px] justify-center mt-[30px]" id="box-show-result"></div>
     </div>
 
-
-    {{-- <div class="absolute top-0 bottom-0 right-0 left-0 hidden" id="fade"></div> --}}
-    <div class="absolute w-full flex justify-center top-[530px] hidden" id="resultBox">
+    <div class="absolute w-full flex justify-center top-[600px] hidden" id="resultBox">
         <div class="text-center border border-[#fff] p-[15px] w-[550px]">
             <p class="text-[26px]" id="result"></p>
         </div>
@@ -64,6 +65,9 @@
 
     <script>
         let players = @json($players);
+        console.log(players);
+
+
         let isRunning = false;
         const type = document.getElementById('type');
         const boxShowResult = document.getElementById('box-show-result');
@@ -71,39 +75,124 @@
         const resultBox = document.getElementById('resultBox');
         const winnersList = document.getElementById('winners-list');
 
+        function filterPlayers(type) {
+            let positions = [];
+
+            switch (type) {
+                case 'GIẢI KHUYẾN KHÍCH':
+                    // ['Giám đốc', 'Chủ tịch', 'Phó Giám đốc', 'Kiểm soát viên'] => 2
+                    // ['Công nhân'] => 30
+                    // ['Nhân viên', 'Trưởng phòng', 'Phó phòng'] => 4
+                    // ['Khách mời'] => 4
+                    positions = calcPositions({
+                        maxLeaders: 2,
+                        maxWorkers: 30,
+                        maxEmployees: 4,
+                        maxGuests: 4
+                    });
+                    break;
+                case 'GIẢI BA':
+                    // ['Giám đốc', 'Chủ tịch', 'Phó Giám đốc', 'Kiểm soát viên'] => 1
+                    // ['Công nhân'] => 5
+                    // ['Nhân viên', 'Trưởng phòng', 'Phó phòng'] => 2
+                    // ['Khách mời'] => 2
+                    positions = calcPositions({
+                        maxLeaders: 1,
+                        maxWorkers: 5,
+                        maxEmployees: 2,
+                        maxGuests: 2
+                    });
+                    break;
+                case 'GIẢI NHÌ':
+                    // ['Công nhân'] => 3
+                    // ['Nhân viên', 'Trưởng phòng', 'Phó phòng'] => 2
+                    positions = calcPositions({
+                        maxLeaders: null,
+                        maxWorkers: 3,
+                        maxEmployees: 2
+                    });
+                    break;
+                case 'GIẢI NHẤT':
+                    // ['Công nhân'] => 1
+                    // ['Nhân viên', 'Trưởng phòng', 'Phó phòng'] => 1
+                    positions = calcPositions({
+                        maxLeaders: null,
+                        maxWorkers: 1,
+                        maxEmployees: 1
+                    });
+                    break;
+                case 'GIẢI ĐẶC BIỆT':
+                    // ['Công nhân'] => 1
+                    positions = calcPositions({
+                        maxLeaders: null,
+                        maxWorkers: 1
+                    });
+                    break;
+            }
+            // Nếu mảng positions rỗng, trả về toàn bộ players
+            if (positions.length === 0) {
+                return players;
+            }
+            return players.filter(player => positions.includes(player.position));
+        }
+
+        function calcPositions({
+            maxLeaders = null,
+            maxWorkers = null,
+            maxEmployees = null,
+            maxGuests = null
+        }) {
+            let positions = [];
+
+            console.log("leaders - maxLeaders: " + leaders + ' - ' + maxLeaders);
+            console.log("workers - maxWorkers: " + workers + ' - ' + maxWorkers);
+            console.log("employees - maxEmployees: " + employees + ' - ' + maxEmployees);
+            console.log("guests - maxGuests: " + guests + ' - ' + maxGuests);
+
+            if (maxLeaders != null && leaders < maxLeaders) {
+                positions = [...positions, 'Giám đốc', 'Chủ tịch', 'Phó Giám đốc', 'Kiểm soát viên'];
+            }
+            if (maxWorkers != null && workers < maxWorkers) {
+                positions = [...positions, 'Công nhân'];
+            }
+            if (maxEmployees != null && employees < maxEmployees) {
+                positions = [...positions, 'Nhân viên', 'Trưởng phòng', 'Phó phòng'];
+            }
+            if (maxGuests != null && guests < maxGuests) {
+                positions = [...positions, 'Khách mời'];
+            }
+
+            return positions;
+        }
+        let leaders = @json($leaders);
+        let workers = @json($workers);
+        let employees = @json($employees);
+        let guests = @json($guests);
+
         function calcNumberOfSpins(type) {
             let total = 0;
             let numberOfSpins = 0;
 
             switch (type) {
                 case 'GIẢI KHUYẾN KHÍCH':
-                    // total = 40;
-                    total = 5;
-                    numberOfSpins = 2;
-                    // Khối xưởng, Khối phòng ban, LĐCH, Khách mời
+                    total = 40;
+                    numberOfSpins = 10;
                     break;
                 case 'GIẢI BA':
-                    // total = 20;
-                    total = 3;
+                    total = 20;
                     numberOfSpins = 10;
-                    // Khối xưởng, Khối phòng ban, LĐCH, Khách mời
                     break;
                 case 'GIẢI NHÌ':
-                    // total = 5;
-                    total = 2;
+                    total = 5;
                     numberOfSpins = 1;
-                    // Khối xưởng, Khối phòng ban
                     break;
                 case 'GIẢI NHẤT':
-                    // total = 2;
-                    total = 1;
+                    total = 2;
                     numberOfSpins = 1;
-                    // Khối xưởng, Khối phòng ban
                     break;
                 case 'GIẢI ĐẶC BIỆT':
                     total = 1;
                     numberOfSpins = 1;
-                    // Khối xưởng
                     break;
             }
 
@@ -121,7 +210,8 @@
                         'X-CSRF-TOKEN': csrfToken,
                     },
                     body: JSON.stringify({
-                        total, type
+                        total,
+                        type
                     }),
                 });
 
@@ -142,7 +232,7 @@
             }
         }
 
-        async function startRandom() {
+        async function start() {
             let [total, numberOfSpins] = calcNumberOfSpins(type.value);
             // call api checkTotalWinner
             total = await checkTotalWinner(total, type.value);
@@ -152,8 +242,10 @@
                 numberOfSpins = total;
             }
 
+            let resultFilterPlayers = filterPlayers(type.value)
+
             if (isRunning) return;
-            if (players.length < numberOfSpins) {
+            if (resultFilterPlayers.length < numberOfSpins) {
                 alert(`Không đủ người chơi để quay ${numberOfSpins} lần!`);
                 return;
             }
@@ -163,32 +255,31 @@
             winnersList.classList.remove('hidden');
             resultBox.classList.remove('hidden');
             boxShowResult.innerHTML = "";
-            // const fade = document.getElementById('fade');
-            // fade.classList.add('bg-gray-900/90');
-            // fade.classList.remove('hidden');
+            winnersList.classList.toggle('mt-[100px]');
 
             // Hàm quay thưởng với Promise
             const performRandom = async () => {
+                resultFilterPlayers = filterPlayers(type.value)
                 return new Promise((resolve, reject) => {
                     let randomInterval;
                     let currentIndex = -1;
 
                     // Hiệu ứng nháy ngẫu nhiên
                     randomInterval = setInterval(() => {
-                        currentIndex = Math.floor(Math.random() * players.length);
-                        const playersRandom = players[currentIndex]
-                        result.textContent = playersRandom.name + ' - ' + playersRandom.unit +
-                            ' - ' + playersRandom.position;
+                        currentIndex = Math.floor(Math.random() * resultFilterPlayers.length);
+                        const playersRandom = resultFilterPlayers[currentIndex]
+                        result.textContent = playersRandom.name + ' - ' + playersRandom.unit;
                     }, 100);
 
                     // Dừng quay sau 3 giây
                     setTimeout(async () => {
                         clearInterval(randomInterval);
-                        const winner = players[currentIndex];
-                        const winnerName = winner.name + ' - ' + winner.unit + ' - ' +
-                            winner.position;
-                        players.splice(currentIndex,
+                        const winner = resultFilterPlayers[currentIndex];
+                        const winnerName = winner.name + ' - ' + winner.unit;
+                        resultFilterPlayers.splice(currentIndex,
                             1); // Xóa người chiến thắng khỏi danh sách
+                        players = players.filter(player => player.id !== winner
+                            .id); // Xóa người chiến thắng khỏi danh sách
 
                         // call api update chiến thắng giải
                         try {
@@ -199,17 +290,18 @@
                             reject(error); // Dừng quá trình quay
                         }
 
-                        setTimeout(() => {
-                            resolve(); // Kết thúc mỗi lần quay
-                        }, 2000);
-                    }, 3000);
+                        //     setTimeout(() => {
+                        //         resolve(); // Kết thúc mỗi lần quay
+                        //     }, 2000);
+                        // }, 3000);
+                    }, 100);
                 });
             };
 
             // Quay 3 lần liên tiếp
             try {
                 for (let i = 0; i < numberOfSpins; i++) {
-                    if (players.length === 0) {
+                    if (resultFilterPlayers.length === 0) {
                         alert("Không còn người chơi để quay tiếp!");
                         break;
                     }
@@ -224,21 +316,20 @@
             }
 
             // Kết thúc
-            // result.textContent = "";
-            // fade.classList.add('hidden'); // Ẩn fade overlay
             resultBox.classList.add('hidden');
+            winnersList.classList.toggle('mt-[100px]');
             isRunning = false;
         }
 
         function showResult(winner, stt) {
             const html = `
-                <div class="text-center border border-[#fff] w-[330px] p-[15px] flex-shrink-0 relative">
-                    <p>SỐ ${stt++}</p>
-                    <p class="text-[26px]">${winner.name}</p>
-                    <p>* ${winner.unit} - ${winner.position} *</p>
-                    <button
-                        class="absolute right-[10px] top-[10px] font-bold text-[red] bg-white w-[25px] h-[25px] leading-[25px] border-none rounded-[5px] remove-result" onclick="removeResult(this, ${winner.id})">X</button>
-                </div>`;
+            <div class="text-center border border-[#fff] w-[345px] px-[10px] py-[15px] flex-shrink-0 relative rounded-[8px] group">
+                <p class="text-[26px]">${winner.name}</p>
+                <p>* ${winner.unit} *</p>
+                <button
+                    class="absolute hidden group-hover:block right-[10px] top-[10px] font-bold text-[red] bg-white w-[25px] h-[25px] leading-[25px] border-none rounded-[5px] remove-result"
+                    onclick="removeResult(this, ${winner.id})">X</button>
+            </div>`;
 
             boxShowResult.innerHTML += html;
         }
@@ -275,6 +366,23 @@
                 }
 
                 showResult(winner, stt); // Hiển thị kết quả
+
+                if (['Giám đốc', 'Chủ tịch', 'Phó Giám đốc', 'Kiểm soát viên'].includes(winner.position)) {
+                    leaders++;
+                }
+                if (['Công nhân'].includes(winner.position)) {
+                    workers++;
+                }
+                if (['Nhân viên', 'Trưởng phòng', 'Phó phòng'].includes(winner.position)) {
+                    employees++;
+                }
+                if (['Khách mời'].includes(winner.position)) {
+                    guests++;
+                }
+                console.log("leaders: " + leaders);
+                console.log("workers: " + workers);
+                console.log("employees: " + employees);
+                console.log("guests: " + guests);
             } catch (error) {
                 console.error('Có lỗi xảy ra khi gọi API updateWinner:', error);
                 throw error; // Ném lỗi để dừng quá trình quay
@@ -310,6 +418,11 @@
             winnersList.classList.add('hidden');
             boxShowResult.innerHTML = "";
             resultBox.classList.add('hidden');
+        }
+
+        function changeType() {
+            clearResult();
+
         }
     </script>
 </body>

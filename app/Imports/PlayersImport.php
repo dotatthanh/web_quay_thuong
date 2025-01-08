@@ -14,15 +14,13 @@ class PlayersImport implements ToModel, WithStartRow
     }
 
     /**
-     * @param array $row
-     *
      * @return \Illuminate\Database\Eloquent\Model|null
      */
     public function model(array $row)
     {
         return new Player([
-            'name'     => $row[0],
-            'position'    => $row[1],
+            'name' => $row[0],
+            'position' => $row[1],
             'unit' => $row[2],
         ]);
     }

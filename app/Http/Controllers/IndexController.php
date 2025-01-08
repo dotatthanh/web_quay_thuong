@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Player;
-use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Illuminate\Support\Facades\DB;
 use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\Response;
 
 class IndexController extends Controller
 {
@@ -15,6 +15,10 @@ class IndexController extends Controller
         $players = Player::whereNull('won')->get();
         $data = [
             'players' => $players,
+            'leaders' => Player::whereIn('position', ['Giám đốc', 'Chủ tịch', 'Phó Giám đốc', 'Kiểm soát viên'])->where('won', 'GIẢI KHUYẾN KHÍCH')->count(),
+            'workers' => Player::whereIn('position', ['Công nhân'])->where('won', 'GIẢI KHUYẾN KHÍCH')->count(),
+            'employees' => Player::whereIn('position', ['Nhân viên', 'Trưởng phòng', 'Phó phòng'])->where('won', 'GIẢI KHUYẾN KHÍCH')->count(),
+            'guests' => Player::whereIn('position', ['Khách mời'])->where('won', 'GIẢI KHUYẾN KHÍCH')->count(),
         ];
 
         return view('home', $data);
@@ -68,4 +72,20 @@ class IndexController extends Controller
             return $this->responseError(Response::HTTP_INTERNAL_SERVER_ERROR, null);
         }
     }
+
+    // public function index()
+    // {
+    //     try {
+    //         $data = [
+    //             'leaders' => Player::whereIn('position', ['Giám đốc', 'Chủ tịch', 'Phó Giám đốc', 'Kiểm soát viên'])->where('won', 'GIẢI KHUYẾN KHÍCH')->count(),
+    //             'workers' => Player::whereIn('position', ['Công nhân'])->where('won', 'GIẢI KHUYẾN KHÍCH')->count(),
+    //             'employees' => Player::whereIn('position', ['Nhân viên', 'Trưởng phòng', 'Phó phòng'])->where('won', 'GIẢI KHUYẾN KHÍCH')->count(),
+    //             'guests' => Player::whereIn('position', ['Khách mời'])->where('won', 'GIẢI KHUYẾN KHÍCH')->count(),
+    //         ];
+
+    //         return $this->responseSuccess(Response::HTTP_OK, ['result' => true, $data]);
+    //     } catch (Exception $e) {
+    //         return $this->responseError(Response::HTTP_INTERNAL_SERVER_ERROR, null);
+    //     }
+    // }
 }

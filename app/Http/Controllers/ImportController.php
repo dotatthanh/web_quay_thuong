@@ -17,13 +17,13 @@ class ImportController extends Controller
 
     public function import(Request $request)
     {
-        if (!$request->hasFile('file_import')) {
+        if (! $request->hasFile('file_import')) {
             return redirect()->back()->with('alert-error', 'Vui lòng chọn file để import.');
         }
 
         $file = $request->file('file_import');
 
-        if (!in_array($file->getClientOriginalExtension(), ['xlsx'])) {
+        if (! in_array($file->getClientOriginalExtension(), ['xlsx'])) {
             return redirect()->back()->with('alert-error', 'Định dạng file không hợp lệ! Chỉ hỗ trợ xlsx.');
         }
 
@@ -33,7 +33,7 @@ class ImportController extends Controller
 
             return redirect()->back()->with('alert-success', 'Import dữ liệu thành công!');
         } catch (\Exception $e) {
-            Log::error('Import error: ' . $e->getMessage());
+            Log::error('Import error: '.$e->getMessage());
 
             return redirect()->back()->with('alert-error', 'Có lỗi xảy ra! Import dữ liệu thất bại!');
         }
