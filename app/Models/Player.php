@@ -10,5 +10,6 @@ class Player extends Model
         'name',
         'position',
         'unit',
+        'won',
     ];
 }
