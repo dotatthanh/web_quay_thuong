@@ -73,19 +73,19 @@ class IndexController extends Controller
         }
     }
 
-    // public function index()
-    // {
-    //     try {
-    //         $data = [
-    //             'leaders' => Player::whereIn('position', ['Giám đốc', 'Chủ tịch', 'Phó Giám đốc', 'Kiểm soát viên'])->where('won', 'GIẢI KHUYẾN KHÍCH')->count(),
-    //             'workers' => Player::whereIn('position', ['Công nhân'])->where('won', 'GIẢI KHUYẾN KHÍCH')->count(),
-    //             'employees' => Player::whereIn('position', ['Nhân viên', 'Trưởng phòng', 'Phó phòng'])->where('won', 'GIẢI KHUYẾN KHÍCH')->count(),
-    //             'guests' => Player::whereIn('position', ['Khách mời'])->where('won', 'GIẢI KHUYẾN KHÍCH')->count(),
-    //         ];
+    public function getAwardStatistics(Request $request)
+    {
+        try {
+            $data = [
+                'leaders' => Player::whereIn('position', ['Giám đốc', 'Chủ tịch', 'Phó Giám đốc', 'Kiểm soát viên'])->where('won', $request->type)->count(),
+                'workers' => Player::whereIn('position', ['Công nhân'])->where('won', $request->type)->count(),
+                'employees' => Player::whereIn('position', ['Nhân viên', 'Trưởng phòng', 'Phó phòng'])->where('won', $request->type)->count(),
+                'guests' => Player::whereIn('position', ['Khách mời'])->where('won', $request->type)->count(),
+            ];
 
-    //         return $this->responseSuccess(Response::HTTP_OK, ['result' => true, $data]);
-    //     } catch (Exception $e) {
-    //         return $this->responseError(Response::HTTP_INTERNAL_SERVER_ERROR, null);
-    //     }
-    // }
+            return $this->responseSuccess(Response::HTTP_OK, $data);
+        } catch (Exception $e) {
+            return $this->responseError(Response::HTTP_INTERNAL_SERVER_ERROR, null);
+        }
+    }
 }

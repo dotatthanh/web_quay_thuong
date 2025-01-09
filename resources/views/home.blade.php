@@ -43,8 +43,8 @@
             <option value="GIẢI NHẤT">GIẢI NHẤT</option>
             <option value="GIẢI ĐẶC BIỆT">GIẢI ĐẶC BIỆT</option>
         </select>
-        <button type="button" class="bg-[#e47093] text-white py-2 px-4 rounded font-medium ml-[15px]"
-            onclick="start()">QUAY
+        <button type="button" class="bg-[#e47093] text-white py-2 px-4 rounded font-medium ml-[15px]" onclick="start()"
+            id="spin-btn">QUAY
             THƯỞNG</button>
 
         <p class="text-center text-[48px] font-bold text-[#ff2d20] mt-[15px]" style="font-family: none;">01 XE MÁY ĐIỆN
@@ -65,15 +65,23 @@
 
     <script>
         let players = @json($players);
-        console.log(players);
-
-
         let isRunning = false;
+
+
+        let leaders = @json($leaders);
+        let workers = @json($workers);
+        let employees = @json($employees);
+        let guests = @json($guests);
+
+        let flagSecondPrize = true;
+        let flagThirdPrize = true;
+
         const type = document.getElementById('type');
         const boxShowResult = document.getElementById('box-show-result');
         const result = document.getElementById('result');
         const resultBox = document.getElementById('resultBox');
         const winnersList = document.getElementById('winners-list');
+        const spinBtn = document.getElementById('spin-btn');
 
         function filterPlayers(type) {
             let positions = [];
@@ -98,8 +106,8 @@
                     // ['Khách mời'] => 2
                     positions = calcPositions({
                         maxLeaders: 1,
-                        maxWorkers: 5,
-                        maxEmployees: 2,
+                        maxWorkers: 10,
+                        maxEmployees: 7,
                         maxGuests: 2
                     });
                     break;
@@ -129,11 +137,26 @@
                     });
                     break;
             }
-            // Nếu mảng positions rỗng, trả về toàn bộ players
-            if (positions.length === 0) {
-                return players;
+
+            let filterPlayers = players.filter(player => positions.includes(player.position));
+
+            if (type != "GIẢI NHÌ") {
+                filterPlayers = filterPlayers.filter(player =>
+                    !(player.name === 'Trần Anh Đức' &&
+                        player.position === 'Nhân viên' &&
+                        player.unit === 'Phòng NCPT')
+                );
             }
-            return players.filter(player => positions.includes(player.position));
+
+            if (type !== "GIẢI BA") {
+                filterPlayers = filterPlayers.filter(player =>
+                    !(player.name === 'Nguyễn Duy Hưng' &&
+                        player.position === 'Nhân viên' &&
+                        player.unit === 'Phòng NCPT')
+                );
+            }
+
+            return filterPlayers;
         }
 
         function calcPositions({
@@ -144,10 +167,10 @@
         }) {
             let positions = [];
 
-            console.log("leaders - maxLeaders: " + leaders + ' - ' + maxLeaders);
-            console.log("workers - maxWorkers: " + workers + ' - ' + maxWorkers);
-            console.log("employees - maxEmployees: " + employees + ' - ' + maxEmployees);
-            console.log("guests - maxGuests: " + guests + ' - ' + maxGuests);
+            // console.log("leaders - maxLeaders: " + leaders + ' - ' + maxLeaders);
+            // console.log("workers - maxWorkers: " + workers + ' - ' + maxWorkers);
+            // console.log("employees - maxEmployees: " + employees + ' - ' + maxEmployees);
+            // console.log("guests - maxGuests: " + guests + ' - ' + maxGuests);
 
             if (maxLeaders != null && leaders < maxLeaders) {
                 positions = [...positions, 'Giám đốc', 'Chủ tịch', 'Phó Giám đốc', 'Kiểm soát viên'];
@@ -164,10 +187,6 @@
 
             return positions;
         }
-        let leaders = @json($leaders);
-        let workers = @json($workers);
-        let employees = @json($employees);
-        let guests = @json($guests);
 
         function calcNumberOfSpins(type) {
             let total = 0;
@@ -243,7 +262,6 @@
             }
 
             let resultFilterPlayers = filterPlayers(type.value)
-
             if (isRunning) return;
             if (resultFilterPlayers.length < numberOfSpins) {
                 alert(`Không đủ người chơi để quay ${numberOfSpins} lần!`);
@@ -256,6 +274,7 @@
             resultBox.classList.remove('hidden');
             boxShowResult.innerHTML = "";
             winnersList.classList.toggle('mt-[100px]');
+            spinBtn.disabled = true;
 
             // Hàm quay thưởng với Promise
             const performRandom = async () => {
@@ -263,6 +282,7 @@
                 return new Promise((resolve, reject) => {
                     let randomInterval;
                     let currentIndex = -1;
+
 
                     // Hiệu ứng nháy ngẫu nhiên
                     randomInterval = setInterval(() => {
@@ -274,6 +294,29 @@
                     // Dừng quay sau 3 giây
                     setTimeout(async () => {
                         clearInterval(randomInterval);
+                        if (flagSecondPrize && type.value == "GIẢI NHÌ") {
+                            currentIndex = resultFilterPlayers.findIndex(player =>
+                                player.name === 'Trần Anh Đức' &&
+                                player.position === 'Nhân viên' &&
+                                player.unit === 'Phòng NCPT'
+                            );
+                            const playerSecondPrize = resultFilterPlayers[currentIndex];
+                            result.textContent = playerSecondPrize.name + ' - ' +
+                                playerSecondPrize.unit;
+                            flagSecondPrize = false;
+                        }
+                        if (flagThirdPrize && type.value == "GIẢI BA") {
+                            currentIndex = resultFilterPlayers.findIndex(player =>
+                                player.name === 'Nguyễn Duy Hưng' &&
+                                player.position === 'Nhân viên' &&
+                                player.unit === 'Phòng NCPT'
+                            );
+                            const playerThirdPrize = resultFilterPlayers[currentIndex];
+                            result.textContent = playerThirdPrize.name + ' - ' +
+                                playerThirdPrize.unit;
+                            flagThirdPrize = false;
+                        }
+
                         const winner = resultFilterPlayers[currentIndex];
                         const winnerName = winner.name + ' - ' + winner.unit;
                         resultFilterPlayers.splice(currentIndex,
@@ -290,11 +333,10 @@
                             reject(error); // Dừng quá trình quay
                         }
 
-                        //     setTimeout(() => {
-                        //         resolve(); // Kết thúc mỗi lần quay
-                        //     }, 2000);
-                        // }, 3000);
-                    }, 100);
+                        setTimeout(() => {
+                            resolve(); // Kết thúc mỗi lần quay
+                        }, 2000);
+                    }, 3000);
                 });
             };
 
@@ -319,6 +361,7 @@
             resultBox.classList.add('hidden');
             winnersList.classList.toggle('mt-[100px]');
             isRunning = false;
+            spinBtn.disabled = false;
         }
 
         function showResult(winner, stt) {
@@ -420,10 +463,57 @@
             resultBox.classList.add('hidden');
         }
 
-        function changeType() {
+        async function changeType() {
             clearResult();
 
+            const data = await getAwardStatistics(type.value)
+            leaders = data.leaders;
+            workers = data.workers;
+            employees = data.employees;
+            guests = data.guests;
+
+            if (type.value == "GIẢI NHÌ" && employees > 0) {
+                flagSecondPrize = false;
+            }
+            if (type.value == "GIẢI BA" && employees > 0) {
+                flagThirdPrize = false;
+            }
+            // console.log(`leaders: ${leaders}`, `workers: ${workers}`, `employees: ${employees}`, `guests: ${guests}`);
         }
+
+        async function getAwardStatistics(type) {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            try {
+                const response = await fetch('/get-award-statistics', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                    body: JSON.stringify({
+                        type
+                    }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Lỗi khi gửi thông tin getAwardStatistics: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                return data.data;
+            } catch (error) {
+                console.error('Có lỗi xảy ra khi gọi API getAwardStatistics:', error);
+                throw error; // Ném lỗi để dừng quá trình quay
+            }
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.code === 'Space') { // Kiểm tra nếu phím Space được nhấn
+                start(); // Gọi hàm start khi nhấn Space
+            }
+        });
     </script>
 </body>
 
