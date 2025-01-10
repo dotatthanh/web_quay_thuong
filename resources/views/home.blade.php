@@ -47,8 +47,8 @@
             id="spin-btn">QUAY
             THƯỞNG</button>
 
-        <p class="text-center text-[48px] font-bold text-[#ff2d20] mt-[15px]" style="font-family: none;">01 XE MÁY ĐIỆN
-            KLAZA S2</p>
+        <p class="text-center text-[48px] font-bold text-[#ff2d20] mt-[15px]" style="font-family: none;"
+            id="show-award">01 PHẦN TIỀN THƯỞNG 500.000đ</p>
     </form>
 
     <div class="px-[20px] hidden transition-all duration-500" id="winners-list">
@@ -106,8 +106,8 @@
                     // ['Khách mời'] => 2
                     positions = calcPositions({
                         maxLeaders: 1,
-                        maxWorkers: 10,
-                        maxEmployees: 7,
+                        maxWorkers: 15,
+                        maxEmployees: 2,
                         maxGuests: 2
                     });
                     break;
@@ -465,6 +465,27 @@
 
         async function changeType() {
             clearResult();
+
+            const showAward = document.getElementById('show-award');
+            let award = '';
+            switch (type.value) {
+                case 'GIẢI KHUYẾN KHÍCH':
+                    award = '01 PHẦN TIỀN THƯỞNG 500.000đ';
+                    break;
+                case 'GIẢI BA':
+                    award = '01 PHẦN TIỀN THƯỞNG 1.000.000đ';
+                    break;
+                case 'GIẢI NHÌ':
+                    award = '01 PHẦN TIỀN THƯỞNG 3.000.000đ';
+                    break;
+                case 'GIẢI NHẤT':
+                    award = '01 CHIẾC XE ĐẠP THỂ THAO';
+                    break;
+                case 'GIẢI ĐẶC BIỆT':
+                    award = '01 XE MÁY ĐIỆN KLARA S2';
+                    break;
+            }
+            showAward.innerHTML = award;
 
             const data = await getAwardStatistics(type.value)
             leaders = data.leaders;
