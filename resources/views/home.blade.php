@@ -15,7 +15,6 @@
             background: url('./background.jpg') no-repeat center center fixed;
             background-size: 100% 100%;
             height: 100vh;
-            color: #fff;
             font-family: 'Avo', sans-serif;
         }
 
@@ -29,36 +28,30 @@
 </head>
 
 <body class="overflow-y-hidden">
-    <div class="text-center text-[48px] mt-[230px] font-medium" style="font-family: 'Dancing Script';">
-        <p>QUAY SỐ TRÚNG THƯỞNG</p>
-        <p>CHÀO XUÂN MỚI - ĐÓN LỘC MỚI</p>
-    </div>
-
-    <form action="" class="text-center mt-[70px] text-[32px]">
+    <form action="" class="text-center mt-[440px] text-[22px]">
         <select name="type" id="type" onchange="changeType()"
-            class="border border-gray-300 bg-transparent rounded p-2 w-[450px] px-3 text-center h-[64px]">
+            class="border border-black p-2 w-[310px] text-center h-[48px] bg-white appearance-none bg-none">
             <option value="GIẢI KHUYẾN KHÍCH">GIẢI KHUYẾN KHÍCH</option>
             <option value="GIẢI BA">GIẢI BA</option>
             <option value="GIẢI NHÌ">GIẢI NHÌ</option>
             <option value="GIẢI NHẤT">GIẢI NHẤT</option>
             <option value="GIẢI ĐẶC BIỆT">GIẢI ĐẶC BIỆT</option>
         </select>
-        <button type="button" class="bg-[#e47093] text-white py-2 px-4 rounded font-medium ml-[15px]" onclick="start()"
-            id="spin-btn">QUAY
-            THƯỞNG</button>
+        <button type="button" class="border border-black bg-[#ff2d20] text-white h-[48px] px-4 ml-[15px]" onclick="start()"
+            id="spin-btn">QUAY THƯỞNG</button>
 
-        <p class="text-center text-[48px] font-bold text-[#ff2d20] mt-[15px]" style="font-family: none;"
-            id="show-award">01 PHẦN TIỀN THƯỞNG 500.000đ</p>
+        <p class="text-center text-[28px] font-bold text-[#ff2d20] mt-[15px]" style="font-family: none;"
+            id="show-award">30 GIẢI KHUYẾN KHÍCH</p>
     </form>
 
-    <div class="px-[20px] hidden transition-all duration-500" id="winners-list">
+    <div class="px-[20px] hidden transition-all duration-500 text-[#00008b]" id="winners-list">
         <p class="text-center text-[48px] font-medium">DANH SÁCH NGƯỜI MAY MẮN TRÚNG GIẢI</p>
 
         <div class="flex flex-wrap gap-[15px] justify-center mt-[30px]" id="box-show-result"></div>
     </div>
 
-    <div class="absolute w-full flex justify-center top-[600px] hidden" id="resultBox">
-        <div class="text-center border border-[#fff] p-[15px] w-[550px]">
+    <div class="absolute w-full flex justify-center top-[560px] text-[#00008b] hidden" id="resultBox">
+        <div class="text-center border border-[#00008b] p-[15px] w-[650px]">
             <p class="text-[26px]" id="result"></p>
         </div>
     </div>
@@ -71,7 +64,7 @@
         let leaders = @json($leaders);
         let workers = @json($workers);
         let employees = @json($employees);
-        let guests = @json($guests);
+        let departmentManagers = @json($departmentManagers);
 
         let flagSecondPrize = true;
         let flagThirdPrize = true;
@@ -89,40 +82,42 @@
             switch (type) {
                 case 'GIẢI KHUYẾN KHÍCH':
                     // ['Giám đốc', 'Chủ tịch', 'Phó Giám đốc', 'Kiểm soát viên'] => 2
-                    // ['Công nhân'] => 30
-                    // ['Nhân viên', 'Trưởng phòng', 'Phó phòng'] => 4
-                    // ['Khách mời'] => 4
+                    // ['Công nhân'] => 20
+                    // ['Nhân viên'] => 4
+                    // ['Trưởng phòng', 'Phó phòng'] => 4
                     positions = calcPositions({
                         maxLeaders: 2,
-                        maxWorkers: 30,
+                        maxWorkers: 20,
                         maxEmployees: 4,
-                        maxGuests: 4
+                        maxDepartmentManagers: 4
                     });
                     break;
                 case 'GIẢI BA':
                     // ['Giám đốc', 'Chủ tịch', 'Phó Giám đốc', 'Kiểm soát viên'] => 1
                     // ['Công nhân'] => 5
-                    // ['Nhân viên', 'Trưởng phòng', 'Phó phòng'] => 2
-                    // ['Khách mời'] => 2
+                    // ['Nhân viên'] => 2
+                    // ['Trưởng phòng', 'Phó phòng'] => 2
                     positions = calcPositions({
                         maxLeaders: 1,
-                        maxWorkers: 15,
+                        maxWorkers: 5,
                         maxEmployees: 2,
-                        maxGuests: 2
+                        maxDepartmentManagers: 2
                     });
                     break;
                 case 'GIẢI NHÌ':
                     // ['Công nhân'] => 3
-                    // ['Nhân viên', 'Trưởng phòng', 'Phó phòng'] => 2
+                    // ['Nhân viên'] => 1
+                    // ['Trưởng phòng', 'Phó phòng'] => 1
                     positions = calcPositions({
                         maxLeaders: null,
                         maxWorkers: 3,
-                        maxEmployees: 2
+                        maxEmployees: 1,
+                        maxDepartmentManagers: 1,
                     });
                     break;
                 case 'GIẢI NHẤT':
                     // ['Công nhân'] => 1
-                    // ['Nhân viên', 'Trưởng phòng', 'Phó phòng'] => 1
+                    // ['Nhân viên'] => 1
                     positions = calcPositions({
                         maxLeaders: null,
                         maxWorkers: 1,
@@ -142,19 +137,19 @@
 
             if (type != "GIẢI NHÌ") {
                 filterPlayers = filterPlayers.filter(player =>
-                    !(player.name === 'Trần Anh Đức' &&
+                    !(player.name === 'Nguyễn Thu Bảo Linh' &&
                         player.position === 'Nhân viên' &&
-                        player.unit === 'Phòng NCPT')
+                        player.unit === 'Phòng Chính trị')
                 );
             }
 
-            if (type !== "GIẢI BA") {
-                filterPlayers = filterPlayers.filter(player =>
-                    !(player.name === 'Nguyễn Duy Hưng' &&
-                        player.position === 'Nhân viên' &&
-                        player.unit === 'Phòng NCPT')
-                );
-            }
+            // if (type !== "GIẢI BA") {
+            //     filterPlayers = filterPlayers.filter(player =>
+            //         !(player.name === 'Nguyễn Duy Hưng' &&
+            //             player.position === 'Nhân viên' &&
+            //             player.unit === 'Phòng NCPT')
+            //     );
+            // }
 
             return filterPlayers;
         }
@@ -163,14 +158,14 @@
             maxLeaders = null,
             maxWorkers = null,
             maxEmployees = null,
-            maxGuests = null
+            maxDepartmentManagers = null
         }) {
             let positions = [];
 
             // console.log("leaders - maxLeaders: " + leaders + ' - ' + maxLeaders);
             // console.log("workers - maxWorkers: " + workers + ' - ' + maxWorkers);
             // console.log("employees - maxEmployees: " + employees + ' - ' + maxEmployees);
-            // console.log("guests - maxGuests: " + guests + ' - ' + maxGuests);
+            // console.log("departmentManagers - maxDepartmentManagers: " + departmentManagers + ' - ' + maxDepartmentManagers);
 
             if (maxLeaders != null && leaders < maxLeaders) {
                 positions = [...positions, 'Giám đốc', 'Chủ tịch', 'Phó Giám đốc', 'Kiểm soát viên'];
@@ -179,10 +174,10 @@
                 positions = [...positions, 'Công nhân'];
             }
             if (maxEmployees != null && employees < maxEmployees) {
-                positions = [...positions, 'Nhân viên', 'Trưởng phòng', 'Phó phòng'];
+                positions = [...positions, 'Nhân viên'];
             }
-            if (maxGuests != null && guests < maxGuests) {
-                positions = [...positions, 'Khách mời'];
+            if (maxDepartmentManagers != null && departmentManagers < maxDepartmentManagers) {
+                positions = [...positions, 'Trưởng phòng', 'Phó phòng'];
             }
 
             return positions;
@@ -194,20 +189,20 @@
 
             switch (type) {
                 case 'GIẢI KHUYẾN KHÍCH':
-                    total = 40;
+                    total = 30;
                     numberOfSpins = 10;
                     break;
                 case 'GIẢI BA':
-                    total = 20;
+                    total = 10;
                     numberOfSpins = 10;
                     break;
                 case 'GIẢI NHÌ':
                     total = 5;
-                    numberOfSpins = 1;
+                    numberOfSpins = 5;
                     break;
                 case 'GIẢI NHẤT':
                     total = 2;
-                    numberOfSpins = 1;
+                    numberOfSpins = 2;
                     break;
                 case 'GIẢI ĐẶC BIỆT':
                     total = 1;
@@ -262,6 +257,7 @@
             }
 
             let resultFilterPlayers = filterPlayers(type.value)
+            console.log(resultFilterPlayers)
             if (isRunning) return;
             if (resultFilterPlayers.length < numberOfSpins) {
                 alert(`Không đủ người chơi để quay ${numberOfSpins} lần!`);
@@ -296,9 +292,9 @@
                         clearInterval(randomInterval);
                         if (flagSecondPrize && type.value == "GIẢI NHÌ") {
                             currentIndex = resultFilterPlayers.findIndex(player =>
-                                player.name === 'Trần Anh Đức' &&
+                                player.name === 'Nguyễn Thu Bảo Linh' &&
                                 player.position === 'Nhân viên' &&
-                                player.unit === 'Phòng NCPT'
+                                player.unit === 'Phòng Chính trị'
                             );
                             const playerSecondPrize = resultFilterPlayers[currentIndex];
                             result.textContent = playerSecondPrize.name + ' - ' +
@@ -306,14 +302,14 @@
                             flagSecondPrize = false;
                         }
                         if (flagThirdPrize && type.value == "GIẢI BA") {
-                            currentIndex = resultFilterPlayers.findIndex(player =>
-                                player.name === 'Nguyễn Duy Hưng' &&
-                                player.position === 'Nhân viên' &&
-                                player.unit === 'Phòng NCPT'
-                            );
-                            const playerThirdPrize = resultFilterPlayers[currentIndex];
-                            result.textContent = playerThirdPrize.name + ' - ' +
-                                playerThirdPrize.unit;
+                            // currentIndex = resultFilterPlayers.findIndex(player =>
+                            //     player.name === 'Nguyễn Duy Hưng' &&
+                            //     player.position === 'Nhân viên' &&
+                            //     player.unit === 'Phòng NCPT'
+                            // );
+                            // const playerThirdPrize = resultFilterPlayers[currentIndex];
+                            // result.textContent = playerThirdPrize.name + ' - ' +
+                            //     playerThirdPrize.unit;
                             flagThirdPrize = false;
                         }
 
@@ -366,24 +362,24 @@
 
         function showResult(winner, stt) {
             const html = `
-            <div class="text-center border border-[#fff] w-[345px] px-[10px] py-[15px] flex-shrink-0 relative rounded-[8px] group">
+            <div class="text-center border border-[#00008b] w-[345px] px-[10px] py-[15px] flex-shrink-0 relative rounded-[8px] group">
                 <p class="text-[26px]">${winner.name}</p>
                 <p>* ${winner.unit} *</p>
                 <button
                     class="absolute hidden group-hover:block right-[10px] top-[10px] font-bold text-[red] bg-white w-[25px] h-[25px] leading-[25px] border-none rounded-[5px] remove-result"
-                    onclick="removeResult(this, ${winner.id})">X</button>
+                    onclick="removeResult(this, ${winner.id}, '${winner.position}')">X</button>
             </div>`;
 
             boxShowResult.innerHTML += html;
         }
 
-        async function removeResult(button, winnerId) {
+        async function removeResult(button, winnerId, winnerPosition) {
             // Tìm phần tử cha (ở đây là phần tử cha trực tiếp)
             const parent = button.parentElement;
 
             // Kiểm tra và xóa phần tử cha
             if (parent) {
-                total = await removeWinner(winnerId);
+                total = await removeWinner(winnerId, winnerPosition);
                 parent.remove();
             }
         }
@@ -416,23 +412,23 @@
                 if (['Công nhân'].includes(winner.position)) {
                     workers++;
                 }
-                if (['Nhân viên', 'Trưởng phòng', 'Phó phòng'].includes(winner.position)) {
+                if (['Nhân viên'].includes(winner.position)) {
                     employees++;
                 }
-                if (['Khách mời'].includes(winner.position)) {
-                    guests++;
+                if (['Trưởng phòng', 'Phó phòng'].includes(winner.position)) {
+                    departmentManagers++;
                 }
                 console.log("leaders: " + leaders);
                 console.log("workers: " + workers);
                 console.log("employees: " + employees);
-                console.log("guests: " + guests);
+                console.log("departmentManagers: " + departmentManagers);
             } catch (error) {
                 console.error('Có lỗi xảy ra khi gọi API updateWinner:', error);
                 throw error; // Ném lỗi để dừng quá trình quay
             }
         }
 
-        async function removeWinner(id) {
+        async function removeWinner(id, position) {
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
             try {
@@ -450,6 +446,23 @@
                 if (!response.ok) {
                     throw new Error(`Lỗi khi gửi thông tin removeWinner: ${response.status}`);
                 }
+
+                if (['Giám đốc', 'Chủ tịch', 'Phó Giám đốc', 'Kiểm soát viên'].includes(position)) {
+                    leaders--;
+                }
+                if (['Công nhân'].includes(position)) {
+                    workers--;
+                }
+                if (['Nhân viên'].includes(position)) {
+                    employees--;
+                }
+                if (['Trưởng phòng', 'Phó phòng'].includes(position)) {
+                    departmentManagers--;
+                }
+                console.log("leaders: " + leaders);
+                console.log("workers: " + workers);
+                console.log("employees: " + employees);
+                console.log("departmentManagers: " + departmentManagers);
 
             } catch (error) {
                 console.error('Có lỗi xảy ra khi gọi API removeWinner:', error);
@@ -470,19 +483,19 @@
             let award = '';
             switch (type.value) {
                 case 'GIẢI KHUYẾN KHÍCH':
-                    award = '01 PHẦN TIỀN THƯỞNG 500.000đ';
+                    award = '30 GIẢI KHUYẾN KHÍCH';
                     break;
                 case 'GIẢI BA':
-                    award = '01 PHẦN TIỀN THƯỞNG 1.000.000đ';
+                    award = '10 GIẢI BA';
                     break;
                 case 'GIẢI NHÌ':
-                    award = '01 PHẦN TIỀN THƯỞNG 3.000.000đ';
+                    award = '05 GIẢI NHÌ';
                     break;
                 case 'GIẢI NHẤT':
-                    award = '01 CHIẾC XE ĐẠP THỂ THAO';
+                    award = '02 GIẢI NHẤT';
                     break;
                 case 'GIẢI ĐẶC BIỆT':
-                    award = '01 XE MÁY ĐIỆN KLARA S2';
+                    award = '01 GIẢI ĐẶC BIỆT';
                     break;
             }
             showAward.innerHTML = award;
@@ -491,7 +504,7 @@
             leaders = data.leaders;
             workers = data.workers;
             employees = data.employees;
-            guests = data.guests;
+            departmentManagers = data.departmentManagers;
 
             if (type.value == "GIẢI NHÌ" && employees > 0) {
                 flagSecondPrize = false;
@@ -499,7 +512,7 @@
             if (type.value == "GIẢI BA" && employees > 0) {
                 flagThirdPrize = false;
             }
-            // console.log(`leaders: ${leaders}`, `workers: ${workers}`, `employees: ${employees}`, `guests: ${guests}`);
+            // console.log(`leaders: ${leaders}`, `workers: ${workers}`, `employees: ${employees}`, `departmentManagers: ${departmentManagers}`);
         }
 
         async function getAwardStatistics(type) {
