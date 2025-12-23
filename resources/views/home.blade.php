@@ -362,7 +362,7 @@
 
         function showResult(winner, stt) {
             const html = `
-            <div class="text-center border border-[#00008b] w-[345px] px-[10px] py-[15px] flex-shrink-0 relative rounded-[8px] group">
+            <div class="text-center border border-[#00008b] w-[345px] px-[10px] py-[15px] flex-shrink-0 relative rounded-[8px] group bg-white">
                 <p class="text-[26px]">${winner.name}</p>
                 <p>* ${winner.unit} *</p>
                 <button
