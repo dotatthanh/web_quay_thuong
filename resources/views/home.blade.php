@@ -28,7 +28,7 @@
 </head>
 
 <body class="overflow-y-hidden">
-    <form action="" class="text-center mt-[440px] text-[22px]">
+    <form action="" class="text-center mt-[500px] text-[22px]">
         <select name="type" id="type" onchange="changeType()"
             class="border border-black p-2 w-[310px] text-center h-[48px] bg-white appearance-none bg-none">
             <option value="GIẢI KHUYẾN KHÍCH">GIẢI KHUYẾN KHÍCH</option>
@@ -50,7 +50,7 @@
         <div class="flex flex-wrap gap-[15px] justify-center mt-[30px]" id="box-show-result"></div>
     </div>
 
-    <div class="absolute w-full flex justify-center top-[560px] text-[#00008b] hidden" id="resultBox">
+    <div class="absolute w-full flex justify-center top-[620px] text-[#00008b] hidden" id="resultBox">
         <div class="text-center border border-[#00008b] p-[15px] w-[650px]">
             <p class="text-[26px]" id="result"></p>
         </div>
