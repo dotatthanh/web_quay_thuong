@@ -41,7 +41,7 @@
             id="spin-btn">QUAY THƯỞNG</button>
 
         <p class="text-center text-[28px] font-bold text-[#ff2d20] mt-[15px]" style="font-family: none;"
-            id="show-award">30 GIẢI KHUYẾN KHÍCH</p>
+            id="show-award">50 GIẢI KHUYẾN KHÍCH</p>
     </form>
 
     <div class="px-[20px] hidden transition-all duration-500 text-[#00008b]" id="winners-list">
@@ -87,8 +87,8 @@
                     // ['Trưởng phòng', 'Phó phòng'] => 4
                     positions = calcPositions({
                         maxLeaders: 2,
-                        maxWorkers: 20,
-                        maxEmployees: 4,
+                        maxWorkers: 30,
+                        maxEmployees: 14,
                         maxDepartmentManagers: 4
                     });
                     break;
@@ -189,7 +189,7 @@
 
             switch (type) {
                 case 'GIẢI KHUYẾN KHÍCH':
-                    total = 30;
+                    total = 50;
                     numberOfSpins = 10;
                     break;
                 case 'GIẢI BA':
@@ -483,7 +483,7 @@
             let award = '';
             switch (type.value) {
                 case 'GIẢI KHUYẾN KHÍCH':
-                    award = '30 GIẢI KHUYẾN KHÍCH';
+                    award = '50 GIẢI KHUYẾN KHÍCH';
                     break;
                 case 'GIẢI BA':
                     award = '10 GIẢI BA';
