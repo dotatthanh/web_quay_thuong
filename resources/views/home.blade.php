@@ -12,7 +12,7 @@
 
     <style>
         body {
-            background: url('./background.jpg') no-repeat center center fixed;
+            background: url('./background.png') no-repeat center center fixed;
             background-size: 100% 100%;
             height: 100vh;
             font-family: 'Avo', sans-serif;
@@ -40,18 +40,18 @@
         <button type="button" class="border border-black bg-[#ff2d20] text-white h-[48px] px-4 ml-[15px]" onclick="start()"
             id="spin-btn">QUAY THƯỞNG</button>
 
-        <p class="text-center text-[28px] font-bold text-[#ff2d20] mt-[15px]" style="font-family: none;"
+        <p class="text-center text-[28px] font-bold text-[rgb(252,238,33)] mt-[15px]" style="font-family: none;"
             id="show-award">50 GIẢI KHUYẾN KHÍCH</p>
     </form>
 
     <div class="px-[20px] hidden transition-all duration-500 text-[#00008b]" id="winners-list">
-        <p class="text-center text-[48px] font-medium">DANH SÁCH NGƯỜI MAY MẮN TRÚNG GIẢI</p>
+        <p class="text-center text-[48px] font-medium text-[rgb(252,238,33)]">DANH SÁCH NGƯỜI MAY MẮN TRÚNG GIẢI</p>
 
         <div class="flex flex-wrap gap-[15px] justify-center mt-[30px]" id="box-show-result"></div>
     </div>
 
     <div class="absolute w-full flex justify-center top-[620px] text-[#00008b] hidden" id="resultBox">
-        <div class="text-center border border-[#00008b] p-[15px] w-[650px]">
+        <div class="text-center border border-[#00008b] p-[15px] w-[650px] bg-white">
             <p class="text-[26px]" id="result"></p>
         </div>
     </div>
