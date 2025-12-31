@@ -60,128 +60,12 @@
         let players = @json($players);
         let isRunning = false;
 
-
-        let leaders = @json($leaders);
-        let workers = @json($workers);
-        let employees = @json($employees);
-        let departmentManagers = @json($departmentManagers);
-
-        let flagSecondPrize = true;
-        let flagThirdPrize = true;
-
         const type = document.getElementById('type');
         const boxShowResult = document.getElementById('box-show-result');
         const result = document.getElementById('result');
         const resultBox = document.getElementById('resultBox');
         const winnersList = document.getElementById('winners-list');
         const spinBtn = document.getElementById('spin-btn');
-
-        function filterPlayers(type) {
-            let positions = [];
-
-            switch (type) {
-                case 'GIẢI KHUYẾN KHÍCH':
-                    // ['Giám đốc', 'Chủ tịch', 'Phó Giám đốc', 'Kiểm soát viên'] => 2
-                    // ['Công nhân'] => 20
-                    // ['Nhân viên'] => 4
-                    // ['Trưởng phòng', 'Phó phòng'] => 4
-                    positions = calcPositions({
-                        maxLeaders: 2,
-                        maxWorkers: 30,
-                        maxEmployees: 14,
-                        maxDepartmentManagers: 4
-                    });
-                    break;
-                case 'GIẢI BA':
-                    // ['Giám đốc', 'Chủ tịch', 'Phó Giám đốc', 'Kiểm soát viên'] => 1
-                    // ['Công nhân'] => 5
-                    // ['Nhân viên'] => 2
-                    // ['Trưởng phòng', 'Phó phòng'] => 2
-                    positions = calcPositions({
-                        maxLeaders: 1,
-                        maxWorkers: 5,
-                        maxEmployees: 2,
-                        maxDepartmentManagers: 2
-                    });
-                    break;
-                case 'GIẢI NHÌ':
-                    // ['Công nhân'] => 3
-                    // ['Nhân viên'] => 1
-                    // ['Trưởng phòng', 'Phó phòng'] => 1
-                    positions = calcPositions({
-                        maxLeaders: null,
-                        maxWorkers: 3,
-                        maxEmployees: 1,
-                        maxDepartmentManagers: 1,
-                    });
-                    break;
-                case 'GIẢI NHẤT':
-                    // ['Công nhân'] => 1
-                    // ['Nhân viên'] => 1
-                    positions = calcPositions({
-                        maxLeaders: null,
-                        maxWorkers: 1,
-                        maxEmployees: 1
-                    });
-                    break;
-                case 'GIẢI ĐẶC BIỆT':
-                    // ['Công nhân'] => 1
-                    positions = calcPositions({
-                        maxLeaders: null,
-                        maxWorkers: 1
-                    });
-                    break;
-            }
-
-            let filterPlayers = players.filter(player => positions.includes(player.position));
-
-            if (type != "GIẢI NHÌ") {
-                filterPlayers = filterPlayers.filter(player =>
-                    !(player.name === 'Nguyễn Thu Bảo Linh' &&
-                        player.position === 'Nhân viên' &&
-                        player.unit === 'Phòng Chính trị')
-                );
-            }
-
-            // if (type !== "GIẢI BA") {
-            //     filterPlayers = filterPlayers.filter(player =>
-            //         !(player.name === 'Nguyễn Duy Hưng' &&
-            //             player.position === 'Nhân viên' &&
-            //             player.unit === 'Phòng NCPT')
-            //     );
-            // }
-
-            return filterPlayers;
-        }
-
-        function calcPositions({
-            maxLeaders = null,
-            maxWorkers = null,
-            maxEmployees = null,
-            maxDepartmentManagers = null
-        }) {
-            let positions = [];
-
-            // console.log("leaders - maxLeaders: " + leaders + ' - ' + maxLeaders);
-            // console.log("workers - maxWorkers: " + workers + ' - ' + maxWorkers);
-            // console.log("employees - maxEmployees: " + employees + ' - ' + maxEmployees);
-            // console.log("departmentManagers - maxDepartmentManagers: " + departmentManagers + ' - ' + maxDepartmentManagers);
-
-            if (maxLeaders != null && leaders < maxLeaders) {
-                positions = [...positions, 'Giám đốc', 'Chủ tịch', 'Phó Giám đốc', 'Kiểm soát viên'];
-            }
-            if (maxWorkers != null && workers < maxWorkers) {
-                positions = [...positions, 'Công nhân'];
-            }
-            if (maxEmployees != null && employees < maxEmployees) {
-                positions = [...positions, 'Nhân viên'];
-            }
-            if (maxDepartmentManagers != null && departmentManagers < maxDepartmentManagers) {
-                positions = [...positions, 'Trưởng phòng', 'Phó phòng'];
-            }
-
-            return positions;
-        }
 
         function calcNumberOfSpins(type) {
             let total = 0;
@@ -256,8 +140,7 @@
                 numberOfSpins = total;
             }
 
-            let resultFilterPlayers = filterPlayers(type.value)
-            console.log(resultFilterPlayers)
+            let resultFilterPlayers = players
             if (isRunning) return;
             if (resultFilterPlayers.length < numberOfSpins) {
                 alert(`Không đủ người chơi để quay ${numberOfSpins} lần!`);
@@ -274,7 +157,7 @@
 
             // Hàm quay thưởng với Promise
             const performRandom = async () => {
-                resultFilterPlayers = filterPlayers(type.value)
+                resultFilterPlayers = players
                 return new Promise((resolve, reject) => {
                     let randomInterval;
                     let currentIndex = -1;
@@ -287,31 +170,13 @@
                         result.textContent = playersRandom.name + ' - ' + playersRandom.unit;
                     }, 100);
 
+                    let timeout = 3000;
+                    if (type.value == "GIẢI ĐẶC BIỆT") {
+                        timeout = 10000;
+                    }
                     // Dừng quay sau 3 giây
                     setTimeout(async () => {
                         clearInterval(randomInterval);
-                        if (flagSecondPrize && type.value == "GIẢI NHÌ") {
-                            currentIndex = resultFilterPlayers.findIndex(player =>
-                                player.name === 'Nguyễn Thu Bảo Linh' &&
-                                player.position === 'Nhân viên' &&
-                                player.unit === 'Phòng Chính trị'
-                            );
-                            const playerSecondPrize = resultFilterPlayers[currentIndex];
-                            result.textContent = playerSecondPrize.name + ' - ' +
-                                playerSecondPrize.unit;
-                            flagSecondPrize = false;
-                        }
-                        if (flagThirdPrize && type.value == "GIẢI BA") {
-                            // currentIndex = resultFilterPlayers.findIndex(player =>
-                            //     player.name === 'Nguyễn Duy Hưng' &&
-                            //     player.position === 'Nhân viên' &&
-                            //     player.unit === 'Phòng NCPT'
-                            // );
-                            // const playerThirdPrize = resultFilterPlayers[currentIndex];
-                            // result.textContent = playerThirdPrize.name + ' - ' +
-                            //     playerThirdPrize.unit;
-                            flagThirdPrize = false;
-                        }
 
                         const winner = resultFilterPlayers[currentIndex];
                         const winnerName = winner.name + ' - ' + winner.unit;
@@ -332,7 +197,7 @@
                         setTimeout(() => {
                             resolve(); // Kết thúc mỗi lần quay
                         }, 2000);
-                    }, 3000);
+                    }, timeout);
                 });
             };
 
@@ -406,22 +271,6 @@
 
                 showResult(winner, stt); // Hiển thị kết quả
 
-                if (['Giám đốc', 'Chủ tịch', 'Phó Giám đốc', 'Kiểm soát viên'].includes(winner.position)) {
-                    leaders++;
-                }
-                if (['Công nhân'].includes(winner.position)) {
-                    workers++;
-                }
-                if (['Nhân viên'].includes(winner.position)) {
-                    employees++;
-                }
-                if (['Trưởng phòng', 'Phó phòng'].includes(winner.position)) {
-                    departmentManagers++;
-                }
-                console.log("leaders: " + leaders);
-                console.log("workers: " + workers);
-                console.log("employees: " + employees);
-                console.log("departmentManagers: " + departmentManagers);
             } catch (error) {
                 console.error('Có lỗi xảy ra khi gọi API updateWinner:', error);
                 throw error; // Ném lỗi để dừng quá trình quay
@@ -446,23 +295,6 @@
                 if (!response.ok) {
                     throw new Error(`Lỗi khi gửi thông tin removeWinner: ${response.status}`);
                 }
-
-                if (['Giám đốc', 'Chủ tịch', 'Phó Giám đốc', 'Kiểm soát viên'].includes(position)) {
-                    leaders--;
-                }
-                if (['Công nhân'].includes(position)) {
-                    workers--;
-                }
-                if (['Nhân viên'].includes(position)) {
-                    employees--;
-                }
-                if (['Trưởng phòng', 'Phó phòng'].includes(position)) {
-                    departmentManagers--;
-                }
-                console.log("leaders: " + leaders);
-                console.log("workers: " + workers);
-                console.log("employees: " + employees);
-                console.log("departmentManagers: " + departmentManagers);
 
             } catch (error) {
                 console.error('Có lỗi xảy ra khi gọi API removeWinner:', error);
@@ -500,47 +332,6 @@
             }
             showAward.innerHTML = award;
 
-            const data = await getAwardStatistics(type.value)
-            leaders = data.leaders;
-            workers = data.workers;
-            employees = data.employees;
-            departmentManagers = data.departmentManagers;
-
-            if (type.value == "GIẢI NHÌ" && employees > 0) {
-                flagSecondPrize = false;
-            }
-            if (type.value == "GIẢI BA" && employees > 0) {
-                flagThirdPrize = false;
-            }
-            // console.log(`leaders: ${leaders}`, `workers: ${workers}`, `employees: ${employees}`, `departmentManagers: ${departmentManagers}`);
-        }
-
-        async function getAwardStatistics(type) {
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-            try {
-                const response = await fetch('/get-award-statistics', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken,
-                    },
-                    body: JSON.stringify({
-                        type
-                    }),
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Lỗi khi gửi thông tin getAwardStatistics: ${response.status}`);
-                }
-
-                const data = await response.json();
-
-                return data.data;
-            } catch (error) {
-                console.error('Có lỗi xảy ra khi gọi API getAwardStatistics:', error);
-                throw error; // Ném lỗi để dừng quá trình quay
-            }
         }
 
         document.addEventListener('keydown', function(event) {

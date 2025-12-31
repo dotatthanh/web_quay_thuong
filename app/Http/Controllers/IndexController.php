@@ -15,10 +15,6 @@ class IndexController extends Controller
         $players = Player::whereNull('won')->get();
         $data = [
             'players' => $players,
-            'leaders' => Player::whereIn('position', ['Giám đốc', 'Chủ tịch', 'Phó Giám đốc', 'Kiểm soát viên'])->where('won', 'GIẢI KHUYẾN KHÍCH')->count(),
-            'workers' => Player::whereIn('position', ['Công nhân'])->where('won', 'GIẢI KHUYẾN KHÍCH')->count(),
-            'employees' => Player::whereIn('position', ['Nhân viên'])->where('won', 'GIẢI KHUYẾN KHÍCH')->count(),
-            'departmentManagers' => Player::whereIn('position', ['Trưởng phòng', 'Phó phòng'])->where('won', 'GIẢI KHUYẾN KHÍCH')->count(),
         ];
 
         return view('home', $data);
@@ -69,22 +65,6 @@ class IndexController extends Controller
         } catch (Exception $e) {
             DB::rollback();
 
-            return $this->responseError(Response::HTTP_INTERNAL_SERVER_ERROR, null);
-        }
-    }
-
-    public function getAwardStatistics(Request $request)
-    {
-        try {
-            $data = [
-                'leaders' => Player::whereIn('position', ['Giám đốc', 'Chủ tịch', 'Phó Giám đốc', 'Kiểm soát viên'])->where('won', $request->type)->count(),
-                'workers' => Player::whereIn('position', ['Công nhân'])->where('won', $request->type)->count(),
-                'employees' => Player::whereIn('position', ['Nhân viên'])->where('won', $request->type)->count(),
-                'departmentManagers' => Player::whereIn('position', ['Trưởng phòng', 'Phó phòng'])->where('won', $request->type)->count(),
-            ];
-
-            return $this->responseSuccess(Response::HTTP_OK, $data);
-        } catch (Exception $e) {
             return $this->responseError(Response::HTTP_INTERNAL_SERVER_ERROR, null);
         }
     }

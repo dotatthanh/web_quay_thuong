@@ -11,4 +11,3 @@ Route::get('/', [IndexController::class, 'index']);
 Route::post('/update-winner', [IndexController::class, 'updateWinner']);
 Route::post('/check-total-winner', [IndexController::class, 'checkTotalWinner']);
 Route::post('/remove-winner', [IndexController::class, 'removeWinner']);
-Route::post('/get-award-statistics', [IndexController::class, 'getAwardStatistics']);
